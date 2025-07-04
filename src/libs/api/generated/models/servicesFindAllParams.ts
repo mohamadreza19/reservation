@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export type FindAllParams = {
+export type ServicesFindAllParams = {
 /**
  * Page number for pagination
  */

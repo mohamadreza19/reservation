@@ -37,6 +37,32 @@
         ]
       }
     },
+    "/customer/profile": {
+      "get": {
+        "operationId": "findProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
     "/customer/{id}": {
       "get": {
         "operationId": "findOne",
@@ -134,9 +160,6 @@
         "security": [
           {
             "JWT-auth": []
-          },
-          {
-            "JWT-auth": []
           }
         ],
         "tags": [
@@ -151,11 +174,6 @@
             "description": ""
           }
         },
-        "security": [
-          {
-            "JWT-auth": []
-          }
-        ],
         "tags": [
           "Business"
         ]
@@ -221,6 +239,56 @@
             "JWT-auth": []
           }
         ],
+        "tags": [
+          "Business"
+        ]
+      }
+    },
+    "/business/my-link": {
+      "get": {
+        "operationId": "getMyLink",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "tags": [
+          "Business"
+        ]
+      }
+    },
+    "/business/public/{id}": {
+      "get": {
+        "operationId": "getPublicProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Business ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public business profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBusinessDto"
+                }
+              }
+            }
+          }
+        },
         "tags": [
           "Business"
         ]
@@ -510,11 +578,48 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "isSystemService",
+            "required": false,
+            "in": "query",
+            "description": "Filter by system services (true) or non-system services (false)",
+            "schema": {
+              "example": true,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Business services retrieved successfully"
+            "description": "Business services retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedServiceDto"
+                }
+              }
+            }
           },
           "404": {
             "description": "Business not found"
@@ -857,8 +962,15 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "OTP verified successfully, returns access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyOtpResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1095,13 +1207,34 @@
         "tags": [
           "timeslots"
         ]
-      },
+      }
+    },
+    "/timeslots/available-range": {
       "get": {
-        "operationId": "getAll",
-        "parameters": [],
+        "operationId": "getAvailableDateRange",
+        "parameters": [
+          {
+            "name": "businessId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "The range of available dates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvailableDateRangeDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1112,13 +1245,48 @@
         "tags": [
           "timeslots"
         ]
-      },
-      "delete": {
-        "operationId": "deleteAll",
-        "parameters": [],
+      }
+    },
+    "/timeslots/by-date": {
+      "get": {
+        "operationId": "getTimeslotsByDate",
+        "parameters": [
+          {
+            "name": "businessId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "List of available timeslots for the specified date",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimeslotByDateDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid date format"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -1175,6 +1343,67 @@
         "type": "object",
         "properties": {}
       },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "description": "Phone number of the user",
+            "example": "+989123456789"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password for the user (if applicable)",
+            "example": "StrongP@ssw0rd!"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role of the user",
+            "enum": [
+              "super_admin",
+              "business_admin",
+              "employee",
+              "customer"
+            ],
+            "default": "customer"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name of the user",
+            "example": "Ali"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the user",
+            "example": "Rezaei"
+          }
+        },
+        "required": [
+          "phoneNumber",
+          "role"
+        ]
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "uuid-value"
+          },
+          "userInfo": {
+            "description": "User info associated with the customer",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "userInfo"
+        ]
+      },
       "CreateBusinessDto": {
         "type": "object",
         "properties": {
@@ -1206,6 +1435,31 @@
             "example": "Beauty Salon"
           }
         }
+      },
+      "PublicBusinessDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier of the business",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the business",
+            "example": "Example Coffee Shop"
+          },
+          "address": {
+            "type": "string",
+            "description": "The address of the business",
+            "example": "123 Main Street, City, Country"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "address"
+        ]
       },
       "CreateAppointmentDto": {
         "type": "object",
@@ -1304,6 +1558,93 @@
           "name"
         ]
       },
+      "Service": {
+        "type": "object",
+        "properties": {}
+      },
+      "Price": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the price"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Price amount in integer format (e.g. in Tomans)"
+          },
+          "service": {
+            "description": "The service this price belongs to",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Service"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "service"
+        ]
+      },
+      "ServiceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isSystemService": {
+            "type": "boolean"
+          },
+          "price": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "isSystemService"
+        ]
+      },
+      "PaginatedServiceDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
       "UpdateServiceDto": {
         "type": "object",
         "properties": {
@@ -1343,46 +1684,6 @@
         "type": "object",
         "properties": {}
       },
-      "CreateUserDto": {
-        "type": "object",
-        "properties": {
-          "phoneNumber": {
-            "type": "string",
-            "description": "Phone number of the user",
-            "example": "+989123456789"
-          },
-          "password": {
-            "type": "string",
-            "description": "Password for the user (if applicable)",
-            "example": "StrongP@ssw0rd!"
-          },
-          "role": {
-            "type": "string",
-            "description": "Role of the user",
-            "enum": [
-              "super_admin",
-              "business_admin",
-              "employee",
-              "customer"
-            ],
-            "default": "customer"
-          },
-          "firstName": {
-            "type": "string",
-            "description": "First name of the user",
-            "example": "Ali"
-          },
-          "lastName": {
-            "type": "string",
-            "description": "Last name of the user",
-            "example": "Rezaei"
-          }
-        },
-        "required": [
-          "phoneNumber",
-          "role"
-        ]
-      },
       "OtpRequestDto": {
         "type": "object",
         "properties": {
@@ -1414,6 +1715,16 @@
           "phoneNumber",
           "otp"
         ]
+      },
+      "VerifyOtpResponseDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "JWT token if verification succeeds"
+          }
+        }
       },
       "CreatePriceDto": {
         "type": "object",
@@ -1463,6 +1774,54 @@
             "example": false
           }
         }
+      },
+      "AvailableDateRangeDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "date"
+        ]
+      },
+      "TimeslotByDateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the timeslot",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "date": {
+            "type": "string",
+            "description": "Date of the timeslot in YYYY-MM-DD format",
+            "example": "2025-06-01"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Start time of the timeslot in HH:mm format",
+            "example": "09:00"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "End time of the timeslot in HH:mm format",
+            "example": "09:30"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "description": "Indicates if the timeslot is available for booking",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "startTime",
+          "endTime",
+          "isAvailable"
+        ]
       }
     }
   }

@@ -3,7 +3,7 @@ import { defineConfig } from "orval";
 export default defineConfig({
   vaghtban: {
     input: {
-      target: "./swagger.json", // Path to your NestJS-generated swagger.json
+      target: "http://localhost:3030/swagger-json", // Path to your NestJS-generated swagger.json
     },
     output: {
       mode: "tags-split",

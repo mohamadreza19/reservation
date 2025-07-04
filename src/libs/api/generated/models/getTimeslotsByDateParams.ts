@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface UpdatePriceDto {
-  /** The updated price amount */
-  amount?: number;
-}
+export type GetTimeslotsByDateParams = {
+businessId: string;
+date: string;
+};

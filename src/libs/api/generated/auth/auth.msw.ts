@@ -6,11 +6,23 @@
  * OpenAPI spec version: 1.0
  */
 import {
+  faker
+} from '@faker-js/faker';
+
+import {
   HttpResponse,
   delay,
   http
 } from 'msw';
 
+import type {
+  VerifyOtpResponseDto
+} from '.././models';
+
+
+export const getVerifyOTPResponseMock = (overrideResponse: Partial< VerifyOtpResponseDto > = {}): VerifyOtpResponseDto => ({access_token: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), isNew: faker.datatype.boolean(), role: faker.helpers.arrayElement(['super_admin','business_admin','employee','customer'] as const), ...overrideResponse})
+
+export const getAdminLoginResponseMock = (overrideResponse: Partial< VerifyOtpResponseDto > = {}): VerifyOtpResponseDto => ({access_token: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), isNew: faker.datatype.boolean(), role: faker.helpers.arrayElement(['super_admin','business_admin','employee','customer'] as const), ...overrideResponse})
 
 
 export const getSendOTPMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
@@ -23,16 +35,31 @@ export const getSendOTPMockHandler = (overrideResponse?: void | ((info: Paramete
   })
 }
 
-export const getVerifyOTPMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
+export const getVerifyOTPMockHandler = (overrideResponse?: VerifyOtpResponseDto | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<VerifyOtpResponseDto> | VerifyOtpResponseDto)) => {
   return http.post('*/auth/verify-otp', async (info) => {await delay(1000);
-  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
-    return new HttpResponse(null,
-      { status: 201,
-        
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getVerifyOTPResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getAdminLoginMockHandler = (overrideResponse?: VerifyOtpResponseDto | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<VerifyOtpResponseDto> | VerifyOtpResponseDto)) => {
+  return http.post('*/auth/admin-login', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getAdminLoginResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
       })
   })
 }
 export const getAuthMock = () => [
   getSendOTPMockHandler(),
-  getVerifyOTPMockHandler()
+  getVerifyOTPMockHandler(),
+  getAdminLoginMockHandler()
 ]

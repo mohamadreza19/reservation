@@ -13,6 +13,16 @@ import {
 
 
 
+export const getCreateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
+  return http.post('*/user', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 201,
+        
+      })
+  })
+}
+
 export const getFindAllMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<void> | void)) => {
   return http.get('*/user', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
@@ -32,7 +42,19 @@ export const getFindOneMockHandler = (overrideResponse?: void | ((info: Paramete
       })
   })
 }
+
+export const getRemoveMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
+  return http.delete('*/user/:id', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
 export const getUserMock = () => [
+  getCreateMockHandler(),
   getFindAllMockHandler(),
-  getFindOneMockHandler()
+  getFindOneMockHandler(),
+  getRemoveMockHandler()
 ]

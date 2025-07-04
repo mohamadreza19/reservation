@@ -6,24 +6,24 @@
  * OpenAPI spec version: 1.0
  */
 import {
+  faker
+} from '@faker-js/faker';
+
+import {
   HttpResponse,
   delay,
   http
 } from 'msw';
 
+import type {
+  CreateScheduleDto
+} from '.././models';
 
 
-export const getUpdateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<void> | void)) => {
-  return http.patch('*/schedules/:id', async (info) => {await delay(1000);
-  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
-    return new HttpResponse(null,
-      { status: 200,
-        
-      })
-  })
-}
+export const getSchedulesFindAllResponseMock = (): CreateScheduleDto[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({day: faker.helpers.arrayElement([1,2,3,4,5,6,7] as const), startTime: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), endTime: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), isOpen: faker.helpers.arrayElement([faker.datatype.boolean(), undefined])})))
 
-export const getInitiateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
+
+export const getSchedulesInitiateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
   return http.post('*/schedules/initiate-schedules', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
     return new HttpResponse(null,
@@ -33,8 +33,30 @@ export const getInitiateMockHandler = (overrideResponse?: void | ((info: Paramet
   })
 }
 
-export const getGetSchedulesMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<void> | void)) => {
+export const getSchedulesFindAllMockHandler = (overrideResponse?: CreateScheduleDto[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<CreateScheduleDto[]> | CreateScheduleDto[])) => {
   return http.get('*/schedules', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getSchedulesFindAllResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getUpdateIntervalForAllMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<void> | void)) => {
+  return http.patch('*/schedules/interval-for-all', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getSchedulesUpdateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<void> | void)) => {
+  return http.patch('*/schedules/:id', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
     return new HttpResponse(null,
       { status: 200,
@@ -43,7 +65,8 @@ export const getGetSchedulesMockHandler = (overrideResponse?: void | ((info: Par
   })
 }
 export const getSchedulesMock = () => [
-  getUpdateMockHandler(),
-  getInitiateMockHandler(),
-  getGetSchedulesMockHandler()
+  getSchedulesInitiateMockHandler(),
+  getSchedulesFindAllMockHandler(),
+  getUpdateIntervalForAllMockHandler(),
+  getSchedulesUpdateMockHandler()
 ]

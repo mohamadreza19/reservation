@@ -6,12 +6,82 @@
  * OpenAPI spec version: 1.0
  */
 import {
+  faker
+} from '@faker-js/faker';
+
+import {
   HttpResponse,
   delay,
   http
 } from 'msw';
 
+import type {
+  BusinessProfileDto,
+  PublicBusinessDto,
+  _
+} from '.././models';
 
+
+export const getBusinessGetProfileResponseMock = (overrideResponse: Partial< BusinessProfileDto > = {}): BusinessProfileDto => ({id: faker.string.alpha(20), name: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha(20), null]), undefined]), address: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha(20), null]), undefined]), userInfo: {phoneNumber: faker.string.alpha(20), password: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), role: faker.helpers.arrayElement(['super_admin','business_admin','employee','customer'] as const), userName: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), firstName: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), lastName: faker.helpers.arrayElement([faker.string.alpha(20), undefined])}, ...overrideResponse})
+
+export const getBusinessGetMyLinkResponseMock = (): _ => ({})
+
+export const getGetPublicProfileResponseMock = (overrideResponse: Partial< PublicBusinessDto > = {}): PublicBusinessDto => ({id: faker.string.alpha(20), name: faker.string.alpha(20), address: faker.string.alpha(20), ...overrideResponse})
+
+
+export const getBusinessCreateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
+  return http.post('*/business', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 201,
+        
+      })
+  })
+}
+
+export const getBusinessPatchMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<void> | void)) => {
+  return http.patch('*/business', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getGetAllMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<void> | void)) => {
+  return http.get('*/business', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getBusinessGetProfileMockHandler = (overrideResponse?: BusinessProfileDto | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<BusinessProfileDto> | BusinessProfileDto)) => {
+  return http.get('*/business/profile', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getBusinessGetProfileResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getBusinessGetMyLinkMockHandler = (overrideResponse?: _ | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<_> | _)) => {
+  return http.get('*/business/my-link', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getBusinessGetMyLinkResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
 
 export const getGetOneMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<void> | void)) => {
   return http.get('*/business/:id', async (info) => {await delay(1000);
@@ -22,6 +92,24 @@ export const getGetOneMockHandler = (overrideResponse?: void | ((info: Parameter
       })
   })
 }
+
+export const getGetPublicProfileMockHandler = (overrideResponse?: PublicBusinessDto | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<PublicBusinessDto> | PublicBusinessDto)) => {
+  return http.get('*/business/public/:id', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetPublicProfileResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
 export const getBusinessMock = () => [
-  getGetOneMockHandler()
+  getBusinessCreateMockHandler(),
+  getBusinessPatchMockHandler(),
+  getGetAllMockHandler(),
+  getBusinessGetProfileMockHandler(),
+  getBusinessGetMyLinkMockHandler(),
+  getGetOneMockHandler(),
+  getGetPublicProfileMockHandler()
 ]

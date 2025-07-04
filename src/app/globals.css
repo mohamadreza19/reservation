@@ -63,3 +63,22 @@
 .swiper-scrollbar {
   /* display: none; */
 }
+
+/* Hide arrows for all number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.my-center-ver {
+  @apply flex flex-col items-center justify-center;
+}
+.my-center-hor {
+  @apply flex items-center justify-center;
+}

@@ -6,15 +6,81 @@
  * OpenAPI spec version: 1.0
  */
 import {
+  faker
+} from '@faker-js/faker';
+
+import {
   HttpResponse,
   delay,
   http
 } from 'msw';
 
+import type {
+  PaginatedServiceDto
+} from '.././models';
 
 
-export const getFindByBusinessMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<void> | void)) => {
+export const getServicesFindAllResponseMock = (overrideResponse: Partial< PaginatedServiceDto > = {}): PaginatedServiceDto => ({data: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.string.alpha(20), name: faker.string.alpha(20), icon: faker.string.alpha(20), description: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), isSystemService: faker.datatype.boolean(), price: faker.helpers.arrayElement([{id: faker.string.alpha(20), amount: faker.string.alpha(20)}, undefined]), children: faker.helpers.arrayElement([[], undefined])})), total: faker.number.int({min: undefined, max: undefined}), page: faker.number.int({min: undefined, max: undefined}), limit: faker.number.int({min: undefined, max: undefined}), ...overrideResponse})
+
+export const getServicesFindByBusinessResponseMock = (overrideResponse: Partial< PaginatedServiceDto > = {}): PaginatedServiceDto => ({data: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.string.alpha(20), name: faker.string.alpha(20), icon: faker.string.alpha(20), description: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), isSystemService: faker.datatype.boolean(), price: faker.helpers.arrayElement([{id: faker.string.alpha(20), amount: faker.string.alpha(20)}, undefined]), children: faker.helpers.arrayElement([[], undefined])})), total: faker.number.int({min: undefined, max: undefined}), page: faker.number.int({min: undefined, max: undefined}), limit: faker.number.int({min: undefined, max: undefined}), ...overrideResponse})
+
+
+export const getServicesCreateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
+  return http.post('*/services', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 201,
+        
+      })
+  })
+}
+
+export const getServicesFindAllMockHandler = (overrideResponse?: PaginatedServiceDto | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<PaginatedServiceDto> | PaginatedServiceDto)) => {
+  return http.get('*/services', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getServicesFindAllResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getGetMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<void> | void)) => {
+  return http.get('*/services/system', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getServicesFindByBusinessMockHandler = (overrideResponse?: PaginatedServiceDto | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<PaginatedServiceDto> | PaginatedServiceDto)) => {
   return http.get('*/services/business/:businessId', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getServicesFindByBusinessResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getServicesUpdateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<void> | void)) => {
+  return http.patch('*/services/:id', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getServicesDeleteMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
+  return http.delete('*/services/:id', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
     return new HttpResponse(null,
       { status: 200,
@@ -23,5 +89,10 @@ export const getFindByBusinessMockHandler = (overrideResponse?: void | ((info: P
   })
 }
 export const getServicesMock = () => [
-  getFindByBusinessMockHandler()
+  getServicesCreateMockHandler(),
+  getServicesFindAllMockHandler(),
+  getGetMockHandler(),
+  getServicesFindByBusinessMockHandler(),
+  getServicesUpdateMockHandler(),
+  getServicesDeleteMockHandler()
 ]

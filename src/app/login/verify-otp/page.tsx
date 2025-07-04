@@ -1,11 +1,24 @@
 "use client";
+import { useVerifyOTP } from "@/libs/api/generated/auth/auth";
 import { Button, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { FunctionComponent, useState, forwardRef } from "react";
+import { FunctionComponent, useState, forwardRef, useMemo } from "react";
 import OtpInput from "react-otp-input";
+import { useBusinessIdStore, useSendOtpStore } from "../store";
+import _ from "lodash";
 
 const MuiOtpInput = forwardRef<HTMLInputElement, any>((props, ref) => {
-  return <TextField {...props} inputRef={ref} />;
+  return (
+    <TextField
+      inputProps={{
+        style: {
+          textAlign: "center",
+        },
+      }}
+      {...props}
+      inputRef={ref}
+    />
+  );
 });
 
 interface PageProps {}
@@ -13,6 +26,40 @@ interface PageProps {}
 const Page: FunctionComponent<PageProps> = () => {
   const [otp, setOtp] = useState("");
   const router = useRouter();
+  const businessIdStore = useBusinessIdStore();
+  const mutate = useVerifyOTP({
+    mutation: {
+      onSuccess(data, variables, context) {
+        localStorage.setItem("access_token", _.get(data, ["access_token"], ""));
+        localStorage.setItem(
+          "businessId",
+          useBusinessIdStore.getState().businessId
+        );
+        businessIdStore.clearBusinessId();
+        router.push("/");
+      },
+    },
+  });
+  const store = useSendOtpStore();
+  const onSubmit = async () => {
+    try {
+      await mutate.mutateAsync({
+        data: {
+          phoneNumber: "+98" + store.phoneNumber,
+          otp: otp,
+        },
+      });
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      alert("خطا در ارسال کد");
+    }
+  };
+
+  useMemo(() => {
+    if (mutate.data) {
+      store.clearPhoneNumber();
+    }
+  }, [mutate.data]);
   return (
     <>
       <OtpInput
@@ -29,7 +76,12 @@ const Page: FunctionComponent<PageProps> = () => {
         renderInput={(props) => <MuiOtpInput {...props} />}
       />
       <Button variant="text">ارسال مجدد</Button>
-      <Button onClick={() => router.push("/")} variant="contained" fullWidth>
+      <Button
+        loading={mutate.isPending}
+        onClick={onSubmit}
+        variant="contained"
+        fullWidth
+      >
         ورود
       </Button>
     </>

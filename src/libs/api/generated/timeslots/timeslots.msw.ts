@@ -6,14 +6,39 @@
  * OpenAPI spec version: 1.0
  */
 import {
+  faker
+} from '@faker-js/faker';
+
+import {
   HttpResponse,
   delay,
   http
 } from 'msw';
 
+import type {
+  AvailableDateRangeDto,
+  TimeslotByDateDto
+} from '.././models';
 
 
-export const getCreateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
+export const getGetAvailableDateRangeResponseMock = (): AvailableDateRangeDto[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({date: faker.helpers.arrayElement([faker.string.alpha(20), undefined])})))
+
+export const getGetTimeslotsByDateResponseMock = (): TimeslotByDateDto[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.string.alpha(20), date: faker.string.alpha(20), startTime: faker.string.alpha(20), endTime: faker.string.alpha(20), isAvailable: faker.datatype.boolean()})))
+
+
+export const getGetAvailableDateRangeMockHandler = (overrideResponse?: AvailableDateRangeDto[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<AvailableDateRangeDto[]> | AvailableDateRangeDto[])) => {
+  return http.get('*/timeslots/available-range', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetAvailableDateRangeResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getTimeslotsCreateMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
   return http.post('*/timeslots', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
     return new HttpResponse(null,
@@ -23,18 +48,20 @@ export const getCreateMockHandler = (overrideResponse?: void | ((info: Parameter
   })
 }
 
-export const getGetAllMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<void> | void)) => {
-  return http.get('*/timeslots', async (info) => {await delay(1000);
-  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
-    return new HttpResponse(null,
+export const getGetTimeslotsByDateMockHandler = (overrideResponse?: TimeslotByDateDto[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<TimeslotByDateDto[]> | TimeslotByDateDto[])) => {
+  return http.get('*/timeslots/by-date', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetTimeslotsByDateResponseMock()),
       { status: 200,
-        
+        headers: { 'Content-Type': 'application/json' }
       })
   })
 }
 
-export const getDeleteAllMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
-  return http.delete('*/timeslots', async (info) => {await delay(1000);
+export const getTimeslotsStatusMockHandler = (overrideResponse?: GetStatusResDto | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<GetStatusResDto> | GetStatusResDto)) => {
+  return http.get('*/timeslots/status', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
     return new HttpResponse(null,
       { status: 200,
@@ -43,7 +70,8 @@ export const getDeleteAllMockHandler = (overrideResponse?: void | ((info: Parame
   })
 }
 export const getTimeslotsMock = () => [
-  getCreateMockHandler(),
-  getGetAllMockHandler(),
-  getDeleteAllMockHandler()
+  getGetAvailableDateRangeMockHandler(),
+  getTimeslotsCreateMockHandler(),
+  getGetTimeslotsByDateMockHandler(),
+  getTimeslotsStatusMockHandler()
 ]
