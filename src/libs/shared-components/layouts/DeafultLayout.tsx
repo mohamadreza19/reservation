@@ -27,7 +27,7 @@ const DefaultLayout: FunctionComponent<DefaultLayoutProps> = ({
   const FinalAppBar = AppBar || <DefaultAppBar {...mergedAppBarProps} />;
   return (
     <Container
-      maxWidth="lg"
+      maxWidth="sm"
       className="min-h-screen relative flex flex-col gap-6 py-6"
     >
       {FinalAppBar}

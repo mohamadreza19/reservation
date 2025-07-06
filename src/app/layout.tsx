@@ -6,6 +6,7 @@ import SplashScreen from "@/libs/shared-components/splash-screen/SplashScreen";
 import ClientProvider from "@/libs/theme/ClientProvider";
 
 import "./load-public-fonts.css";
+import { Suspense } from "react";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -34,7 +35,9 @@ export default function RootLayout({
         className={` bg-background antialiased`}
       >
         {/* <SplashScreen /> */}
-        <ClientProvider>{children}</ClientProvider>
+        <Suspense>
+          <ClientProvider>{children}</ClientProvider>
+        </Suspense>
       </body>
     </html>
   );

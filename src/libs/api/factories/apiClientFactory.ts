@@ -1,5 +1,5 @@
 import { AxiosAdapter } from "../adapters/axiosAdapter";
-import { FetchAdapter } from "../adapters/fetchAdapter";
+// import { FetchAdapter } from "../adapters/fetchAdapter";
 import type { HttpClient } from "../core/httpClient";
 
 type Method =

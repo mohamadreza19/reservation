@@ -12,13 +12,13 @@ export default defineConfig({
 
       clean: true,
       client: "react-query", // Generate React Query hooks
-      mock: true, // Optional: Generate MSW mocks
+      mock: false, // Optional: Generate MSW mocks
       prettier: true, // Format generated files with Prettier
 
       override: {
         query: {
           useQuery: true,
-          useInfinite: true,
+          useInfinite: false,
           useInfiniteQueryParam: "limit",
         },
         mutator: {

@@ -5,402 +5,185 @@
  * API for managing reservations
  * OpenAPI spec version: 1.0
  */
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
-  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
-  InfiniteData,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult,
-} from "@tanstack/react-query";
+  UseQueryResult
+} from '@tanstack/react-query';
 
-import type { FilesUploadBody } from ".././models";
+import type {
+  FilesUploadBody
+} from '.././models';
 
-import { apiClientFactory } from "../../factories/apiClientFactory";
+import { apiClientFactory } from '../../factories/apiClientFactory';
+
+
+
 
 export const filesGet = (
-  entity: "business" | "service",
-  id: string,
-  signal?: AbortSignal
+    entity: 'business' | 'service',
+    id: string,
+ signal?: AbortSignal
 ) => {
-  return apiClientFactory<Blob>({
-    url: `/files/${entity}/${id}`,
-    method: "GET",
-    responseType: "blob",
-    signal,
-  });
-};
+      
+      
+      return apiClientFactory<Blob>(
+      {url: `/files/${entity}/${id}`, method: 'GET',
+        responseType: 'blob', signal
+    },
+      );
+    }
+  
 
-export const getFilesGetQueryKey = (
-  entity: "business" | "service",
-  id: string
+export const getFilesGetQueryKey = (entity: 'business' | 'service',
+    id: string,) => {
+    return [`/files/${entity}/${id}`] as const;
+    }
+
+    
+export const getFilesGetQueryOptions = <TData = Awaited<ReturnType<typeof filesGet>>, TError = unknown>(entity: 'business' | 'service',
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>>, }
 ) => {
-  return [`/files/${entity}/${id}`] as const;
-};
 
-export const getFilesGetInfiniteQueryOptions = <
-  TData = InfiniteData<Awaited<ReturnType<typeof filesGet>>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options?: {
-    query?: Partial<
-      UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof filesGet>>,
-        TError,
-        TData
-      >
-    >;
-  }
-) => {
-  const { query: queryOptions } = options ?? {};
+const {query: queryOptions} = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getFilesGetQueryKey(entity, id);
+  const queryKey =  queryOptions?.queryKey ?? getFilesGetQueryKey(entity,id);
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof filesGet>>> = ({
-    signal,
-  }) => filesGet(entity, id, signal);
+  
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!(entity && id),
-    ...queryOptions,
-  } as UseInfiniteQueryOptions<
-    Awaited<ReturnType<typeof filesGet>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof filesGet>>> = ({ signal }) => filesGet(entity,id, signal);
 
-export type FilesGetInfiniteQueryResult = NonNullable<
-  Awaited<ReturnType<typeof filesGet>>
->;
-export type FilesGetInfiniteQueryError = unknown;
+      
 
-export function useFilesGetInfinite<
-  TData = InfiniteData<Awaited<ReturnType<typeof filesGet>>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options: {
-    query: Partial<
-      UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof filesGet>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
+      
+
+   return  { queryKey, queryFn, enabled: !!(entity && id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type FilesGetQueryResult = NonNullable<Awaited<ReturnType<typeof filesGet>>>
+export type FilesGetQueryError = unknown
+
+
+export function useFilesGet<TData = Awaited<ReturnType<typeof filesGet>>, TError = unknown>(
+ entity: 'business' | 'service',
+    id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof filesGet>>,
           TError,
           Awaited<ReturnType<typeof filesGet>>
-        >,
-        "initialData"
-      >;
-  },
-  queryClient?: QueryClient
-): DefinedUseInfiniteQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useFilesGetInfinite<
-  TData = InfiniteData<Awaited<ReturnType<typeof filesGet>>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options?: {
-    query?: Partial<
-      UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof filesGet>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useFilesGet<TData = Awaited<ReturnType<typeof filesGet>>, TError = unknown>(
+ entity: 'business' | 'service',
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof filesGet>>,
           TError,
           Awaited<ReturnType<typeof filesGet>>
-        >,
-        "initialData"
-      >;
-  },
-  queryClient?: QueryClient
-): UseInfiniteQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useFilesGetInfinite<
-  TData = InfiniteData<Awaited<ReturnType<typeof filesGet>>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options?: {
-    query?: Partial<
-      UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof filesGet>>,
-        TError,
-        TData
-      >
-    >;
-  },
-  queryClient?: QueryClient
-): UseInfiniteQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useFilesGet<TData = Awaited<ReturnType<typeof filesGet>>, TError = unknown>(
+ entity: 'business' | 'service',
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useFilesGetInfinite<
-  TData = InfiniteData<Awaited<ReturnType<typeof filesGet>>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options?: {
-    query?: Partial<
-      UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof filesGet>>,
-        TError,
-        TData
-      >
-    >;
-  },
-  queryClient?: QueryClient
-): UseInfiniteQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFilesGetInfiniteQueryOptions(entity, id, options);
+export function useFilesGet<TData = Awaited<ReturnType<typeof filesGet>>, TError = unknown>(
+ entity: 'business' | 'service',
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useInfiniteQuery(
-    queryOptions,
-    queryClient
-  ) as UseInfiniteQueryResult<TData, TError> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
+  const queryOptions = getFilesGetQueryOptions(entity,id,options)
 
-  query.queryKey = queryOptions.queryKey;
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
 
   return query;
 }
 
-export const getFilesGetQueryOptions = <
-  TData = Awaited<ReturnType<typeof filesGet>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>
-    >;
-  }
-) => {
-  const { query: queryOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getFilesGetQueryKey(entity, id);
-
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof filesGet>>> = ({
-    signal,
-  }) => filesGet(entity, id, signal);
-
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!(entity && id),
-    ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-};
-
-export type FilesGetQueryResult = NonNullable<
-  Awaited<ReturnType<typeof filesGet>>
->;
-export type FilesGetQueryError = unknown;
-
-export function useFilesGet<
-  TData = Awaited<ReturnType<typeof filesGet>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof filesGet>>,
-          TError,
-          Awaited<ReturnType<typeof filesGet>>
-        >,
-        "initialData"
-      >;
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useFilesGet<
-  TData = Awaited<ReturnType<typeof filesGet>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof filesGet>>,
-          TError,
-          Awaited<ReturnType<typeof filesGet>>
-        >,
-        "initialData"
-      >;
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useFilesGet<
-  TData = Awaited<ReturnType<typeof filesGet>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>
-    >;
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-
-export function useFilesGet<
-  TData = Awaited<ReturnType<typeof filesGet>>,
-  TError = unknown
->(
-  entity: "business" | "service",
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof filesGet>>, TError, TData>
-    >;
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getFilesGetQueryOptions(entity, id, options);
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey;
-
-  return query;
-}
 
 export const filesUpload = (
-  entity: "business" | "service",
-  id: string,
-  filesUploadBody: FilesUploadBody,
-  signal?: AbortSignal
+    entity: 'business' | 'service',
+    id: string,
+    filesUploadBody: FilesUploadBody,
+ signal?: AbortSignal
 ) => {
-  const formData = new FormData();
-  if (filesUploadBody.file !== undefined) {
-    formData.append(`file`, filesUploadBody.file);
-  }
+      
+      const formData = new FormData();
+if(filesUploadBody.file !== undefined) {
+ formData.append(`file`, filesUploadBody.file)
+ }
 
-  return apiClientFactory<void>({
-    url: `/files/${entity}/${id}`,
-    method: "POST",
-    headers: { "Content-Type": "multipart/form-data" },
-    data: formData,
-    signal,
-  });
-};
+      return apiClientFactory<void>(
+      {url: `/files/${entity}/${id}`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      );
+    }
+  
 
-export const getFilesUploadMutationOptions = <
-  TError = unknown,
-  TContext = unknown
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof filesUpload>>,
-    TError,
-    { entity: "business" | "service"; id: string; data: FilesUploadBody },
-    TContext
-  >;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof filesUpload>>,
-  TError,
-  { entity: "business" | "service"; id: string; data: FilesUploadBody },
-  TContext
-> => {
-  const mutationKey = ["filesUpload"];
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof filesUpload>>,
-    { entity: "business" | "service"; id: string; data: FilesUploadBody }
-  > = (props) => {
-    const { entity, id, data } = props ?? {};
+export const getFilesUploadMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof filesUpload>>, TError,{entity: 'business' | 'service';id: string;data: FilesUploadBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof filesUpload>>, TError,{entity: 'business' | 'service';id: string;data: FilesUploadBody}, TContext> => {
 
-    return filesUpload(entity, id, data);
-  };
+const mutationKey = ['filesUpload'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
 
-  return { mutationFn, ...mutationOptions };
-};
+      
 
-export type FilesUploadMutationResult = NonNullable<
-  Awaited<ReturnType<typeof filesUpload>>
->;
-export type FilesUploadMutationBody = FilesUploadBody;
-export type FilesUploadMutationError = unknown;
 
-export const useFilesUpload = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof filesUpload>>,
-      TError,
-      { entity: "business" | "service"; id: string; data: FilesUploadBody },
-      TContext
-    >;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof filesUpload>>,
-  TError,
-  { entity: "business" | "service"; id: string; data: FilesUploadBody },
-  TContext
-> => {
-  const mutationOptions = getFilesUploadMutationOptions(options);
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof filesUpload>>, {entity: 'business' | 'service';id: string;data: FilesUploadBody}> = (props) => {
+          const {entity,id,data} = props ?? {};
 
-  return useMutation(mutationOptions, queryClient);
-};
+          return  filesUpload(entity,id,data,)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FilesUploadMutationResult = NonNullable<Awaited<ReturnType<typeof filesUpload>>>
+    export type FilesUploadMutationBody = FilesUploadBody
+    export type FilesUploadMutationError = unknown
+
+    export const useFilesUpload = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof filesUpload>>, TError,{entity: 'business' | 'service';id: string;data: FilesUploadBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof filesUpload>>,
+        TError,
+        {entity: 'business' | 'service';id: string;data: FilesUploadBody},
+        TContext
+      > => {
+
+      const mutationOptions = getFilesUploadMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
